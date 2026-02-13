@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TypeType</title>
+    <meta name="description" content="Type whatever you want in a fun way." />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="TypeType" />
+    <meta
+      property="og:description"
+      content="Type whatever you want in a fun way."
+    />
+    <meta property="og:image" content="./social-preview.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="TypeType preview image" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="TypeType" />
+    <meta
+      name="twitter:description"
+      content="Type whatever you want in a fun way."
+    />
+    <meta name="twitter:image" content="./social-preview.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root {
+        color-scheme: only light;
+        --text: #000000;
+        --bg: #ffffff;
+      }
+
+      html,
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      }
+
+      #frame {
+        width: min(78vw, 1200px);
+        padding: 0 4vw;
+        margin: 0 auto;
+      }
+
+      #measure {
+        display: inline-block;
+      }
+
+      .single-line {
+        white-space: nowrap !important;
+        overflow-wrap: normal !important;
+        word-break: keep-all !important;
+        text-wrap: nowrap !important;
+      }
+
+      .manual-lines {
+        white-space: pre !important;
+        overflow-wrap: normal !important;
+        word-break: keep-all !important;
+        text-wrap: nowrap !important;
+      }
+
+      .auto-wrap {
+        white-space: pre-wrap;
+        overflow-wrap: break-word;
+        word-break: normal;
+      }
+
+      .sr-input {
+        position: fixed;
+        inset: 0;
+        opacity: 0;
+        caret-color: transparent;
+        border: 0;
+        resize: none;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body class="min-h-dvh overflow-hidden">
+    <main id="stage" class="h-dvh flex items-center justify-center">
+      <div
+        id="frame"
+        class="w-full"
+      >
+        <div
+          id="display"
+          class="inline-block max-w-full font-normal leading-snug select-none text-pretty text-left single-line"
+          aria-live="polite"
+        ></div>
+      </div>
+    </main>
+    <div
+      id="measure"
+      class="font-normal leading-snug text-pretty single-line"
+      style="position: fixed; top: -9999px; left: -9999px; visibility: hidden;"
+      aria-hidden="true"
+    ></div>
+    <div
+      class="fixed inset-x-0 bottom-4 text-center text-xs opacity-60 pointer-events-none"
+      style="padding-bottom: env(safe-area-inset-bottom);"
+    >
+      Type anywhere
+    </div>
+    <button
+      id="clear"
+      class="fixed top-4 right-4 text-xs font-normal opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-black/30"
+      style="padding-top: env(safe-area-inset-top); padding-right: env(safe-area-inset-right);"
+      type="button"
+      aria-label="Clear text"
+    >
+      Clear
+    </button>
+    <button
+      id="credits-toggle"
+      class="fixed right-4 bottom-4 flex size-4 items-center justify-center rounded-md bg-black/10 text-[10px] font-normal leading-none text-black/55 hover:bg-black/14 hover:text-black/82 focus-visible:outline focus-visible:outline-2 focus-visible:outline-black/30"
+      style="margin-right: env(safe-area-inset-right); margin-bottom: env(safe-area-inset-bottom);"
+      type="button"
+      aria-label="Open credits"
+      aria-expanded="false"
+      aria-controls="credits-panel"
+    >
+      i
+    </button>
+    <section
+      id="credits-panel"
+      class="fixed right-4 bottom-9 hidden rounded-[16px] border border-black/15 bg-white/80 px-2 py-3 text-[10px] backdrop-blur-sm"
+      style="margin-right: env(safe-area-inset-right); margin-bottom: env(safe-area-inset-bottom);"
+      aria-label="Credits"
+    >
+      <div class="flex flex-col items-center gap-6 whitespace-nowrap">
+        <p
+          class="font-normal leading-none text-black/55"
+          style="writing-mode: vertical-rl; text-orientation: mixed;"
+        >
+          Made by
+          <a
+            href="https://www.instagram.com/achopang/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="font-normal text-black/55 hover:text-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-black/30"
+          >
+            Antonio Lozano
+          </a>
+        </p>
+        <a
+          href="https://github.com/tonioloz"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="font-normal leading-none text-black/55 hover:text-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-black/30"
+          style="writing-mode: vertical-rl; text-orientation: mixed;"
+        >
+          GitHub
+        </a>
+      </div>
+    </section>
+    <textarea
+      id="sr-input"
+      class="sr-input"
+      autocomplete="off"
+      autocapitalize="off"
+      spellcheck="false"
+      aria-label="Typing input"
+    ></textarea>
+
+    <script>
+      const display = document.getElementById("display");
+      const input = document.getElementById("sr-input");
+      const stage = document.getElementById("stage");
+      const frame = document.getElementById("frame");
+      const measure = document.getElementById("measure");
+      const clearButton = document.getElementById("clear");
+      const creditsToggle = document.getElementById("credits-toggle");
+      const creditsPanel = document.getElementById("credits-panel");
+
+      const colors = [
+        "#ffffff",
+        "#0057ff",
+        "#00a6ff",
+        "#00d1ff",
+        "#ffd400",
+        "#ff8a00",
+        "#ff2d55",
+        "#ff4fd8",
+        "#2bdc5f",
+      ];
+      let colorIndex = 0;
+      let lastLength = 0;
+      let currentFontSize = null;
+
+      const setBackground = () => {
+        document.documentElement.style.setProperty("--bg", colors[colorIndex]);
+      };
+
+      const setWrapMode = (isMulti, width) => {
+        const isSingle = isMulti === "single";
+        const isManual = isMulti === "manual";
+        const isAuto = isMulti === "auto";
+        display.classList.toggle("single-line", isSingle);
+        display.classList.toggle("manual-lines", isManual);
+        display.classList.toggle("auto-wrap", isAuto);
+        measure.classList.toggle("single-line", isSingle);
+        measure.classList.toggle("manual-lines", isManual);
+        measure.classList.toggle("auto-wrap", isAuto);
+        measure.style.width = isAuto ? `${width}px` : "auto";
+      };
+
+      const fitText = () => {
+        const content = display.textContent || "";
+        const frameStyles = getComputedStyle(frame);
+        const paddingX =
+          parseFloat(frameStyles.paddingLeft) +
+          parseFloat(frameStyles.paddingRight);
+        const availableWidth = frame.clientWidth - paddingX;
+        const availableHeight = stage.clientHeight;
+        const initialMax = Math.max(availableWidth, availableHeight) * 0.5;
+
+        if (!content.trim()) {
+          display.style.fontSize = "6vw";
+          setWrapMode("single", availableWidth);
+          display.textContent = "";
+          currentFontSize = null;
+          return;
+        }
+
+        let min = 14;
+        let max = currentFontSize ?? initialMax;
+        if (max < min) {
+          max = min;
+        }
+        let best = min;
+
+        const hasManualBreak = content.includes("\n");
+        setWrapMode("single", availableWidth);
+        measure.style.fontSize = `${min}px`;
+        measure.textContent = content;
+        const fitsSingleLineAtMin =
+          measure.scrollWidth <= availableWidth &&
+          measure.scrollHeight <= availableHeight;
+
+        let mode = "single";
+        if (hasManualBreak) {
+          setWrapMode("manual", availableWidth);
+          measure.style.fontSize = `${min}px`;
+          measure.textContent = content;
+          const fitsManualAtMin =
+            measure.scrollWidth <= availableWidth &&
+            measure.scrollHeight <= availableHeight;
+          mode = fitsManualAtMin ? "manual" : "auto";
+        } else if (!fitsSingleLineAtMin) {
+          mode = "auto";
+        }
+
+        setWrapMode(mode, availableWidth);
+
+        while (min <= max) {
+          const mid = Math.floor((min + max) / 2);
+          measure.style.fontSize = `${mid}px`;
+          measure.textContent = content;
+
+          const fits =
+            measure.scrollWidth <= availableWidth &&
+            measure.scrollHeight <= availableHeight;
+
+          if (fits) {
+            best = mid;
+            min = mid + 1;
+          } else {
+            max = mid - 1;
+          }
+        }
+
+        display.style.fontSize = `${best}px`;
+        if (currentFontSize === null || best < currentFontSize) {
+          currentFontSize = best;
+        }
+      };
+
+      const updateDisplay = (value) => {
+        display.textContent = value;
+        fitText();
+      };
+
+      const focusInput = () => {
+        input.focus();
+      };
+
+      const handleInput = (event) => {
+        const value = event.target.value;
+        const delta = Math.max(0, value.length - lastLength);
+        if (delta > 0) {
+          colorIndex = (colorIndex + delta) % colors.length;
+          setBackground();
+        }
+        lastLength = value.length;
+        updateDisplay(value);
+      };
+
+      const handleKeydown = (event) => {
+        if (event.key === "Tab") {
+          event.preventDefault();
+        }
+      };
+
+      window.addEventListener("resize", fitText);
+      window.addEventListener("click", () => {
+        creditsPanel.classList.add("hidden");
+        creditsToggle.setAttribute("aria-expanded", "false");
+        focusInput();
+      });
+      window.addEventListener("touchstart", focusInput, { passive: true });
+      clearButton.addEventListener("click", (event) => {
+        event.preventDefault();
+        input.value = "";
+        updateDisplay("");
+        focusInput();
+      });
+      creditsToggle.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const willOpen = creditsPanel.classList.contains("hidden");
+        creditsPanel.classList.toggle("hidden", !willOpen);
+        creditsToggle.setAttribute("aria-expanded", String(willOpen));
+      });
+      creditsPanel.addEventListener("click", (event) => {
+        event.stopPropagation();
+      });
+      input.addEventListener("input", handleInput);
+      input.addEventListener("keydown", handleKeydown);
+
+      setBackground();
+      focusInput();
+    </script>
+  </body>
+</html>
