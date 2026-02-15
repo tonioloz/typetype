@@ -8,10 +8,6 @@ Live site: [https://www.typetype.online/](https://www.typetype.online/)
 
 ![TypeType preview](./social-preview.png)
 
-## Logo
-
-![TypeType logo](./favicon.svg)
-
 ## Features
 
 - Full-screen typing canvas with automatic focus.
@@ -19,7 +15,6 @@ Live site: [https://www.typetype.online/](https://www.typetype.online/)
 - Wrap behavior that adapts between single-line, manual line breaks, and auto-wrap.
 - Background color cycling as text changes.
 - Minimal UI with clear action and credits panel.
-- GA4 tracking via `gtag.js`.
 
 ## Tech
 
@@ -41,4 +36,3 @@ Then open [http://localhost:8080](http://localhost:8080).
 ## Deployment
 
 Deploy on Vercel and connect `typetype.online` / `www.typetype.online` in your project domain settings.
-
